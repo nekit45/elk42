@@ -23,90 +23,35 @@ data:
   input-kubernetes.conf: |
     [INPUT]
         Name              tail
-        Tag               example-app.*
-        Path              /var/log/containers/example-app-*.log
+        Tag               kube.*
+        Path              /var/log/containers/kuber-*.log
         Parser            docker
-        DB                /var/log/flb-example-app.db
+        DB                /var/log/flb-kube.db
         Mem_Buf_Limit     5MB
         Skip_Long_Lines   On
         Refresh_Interval  10
-    [INPUT]
-        Name tail
-        Tag sysapp.gen.log.mail
-        Parser sys_log_file
-        Path /var/log/mail
-        db /var/log/mail.db
-    [INPUT]
-        Name tail
-        Tag sysapp.gen.log.secure
-        Parser sys_log_file
-        Path /var/log/secure
-        db /var/log/secure.db
-    [INPUT]
-        Name tail
-        Tag sysapp.gen.log.messages
-        Parser sys_log_file
-        Path /var/log/messages
-        db /var/log/messages.db
-    [INPUT]
-        Name tail
-        Tag sysapp.gen.log.cron
-        Parser sys_log_file
-        Path /var/log/cron
-        db /var/log/cron.db
   filter-kubernetes.conf: |
     [FILTER]
         Name                kubernetes
-        Match               example-app.*
+        Match               kube*.*
         Kube_URL            https://kubernetes.default.svc.cluster.local:443
         Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
-        Kube_Tag_Prefix     example-app.var.log.containers.
+        Kube_Tag_Prefix     kube.var.log.containers.
         Merge_Log           On
         Merge_Log_Key       log_processed
-        K8S-Logging.Parser  Off
+        K8S-Logging.Parser  On
         K8S-Logging.Exclude Off
-    [FILTER]
-        Name modify
-        Match sysapp.gen.log.mail
-        Set app syslog
-        Set file /var/log/mail
-    [FILTER]
-        Name modify
-        Match sysapp.gen.log.secure
-        Set app syslog
-        Set file /var/log/secure
-    [FILTER]
-        Name modify
-        Match sysapp.gen.log.messages
-        Set app syslog
-        Set file /var/log/messages
-    [FILTER]
-        Name modify
-        Match sysapp.gen.log.cron
-        Set app syslog
-        Set file /var/log/cron
   output-elasticsearch.conf: |
     [OUTPUT]
         Name            es
-        Match           example-app.*
+        Match           *
         Host            ${FLUENT_ELASTICSEARCH_HOST}
         Port            ${FLUENT_ELASTICSEARCH_PORT}
         HTTP_User       ${FLUENT_ELASTICSEARCH_USER}
         HTTP_Passwd     ${FLUENT_ELASTICSEARCH_PASSWORD}
         Logstash_Format On
         Logstash_Prefix example-app
-        Replace_Dots    On
-        Retry_Limit     False
-    [OUTPUT]
-        Name            es
-        Match           sysapp.gen.log.*
-        Host            ${FLUENT_ELASTICSEARCH_HOST}
-        Port            ${FLUENT_ELASTICSEARCH_PORT}
-        HTTP_User       ${FLUENT_ELASTICSEARCH_USER}
-        HTTP_Passwd     ${FLUENT_ELASTICSEARCH_PASSWORD}
-        Logstash_Format On
-        Logstash_Prefix sysapp-gen-log
         Replace_Dots    On
         Retry_Limit     False
   parsers.conf: |
@@ -156,7 +101,7 @@ data:
         Time_Format %b %d %H:%M:%S
         Time_Keep Off
         Time_Key time
-        Time_Offset +0300
+        Time_Offset +0600
     [PARSER]
         Format regex
         Name java_multiline
@@ -164,4 +109,4 @@ data:
         Time_Format %Y-%m-%d %H:%M:%S,%L
         Time_Keep Off
         Time_Key time
-        Time_Offset +0300
+        Time_Offset +0600

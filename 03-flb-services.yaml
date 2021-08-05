@@ -21,7 +21,7 @@ metadata:
     k8s-app: elasticsearch
 subsets:
   - addresses:
-    - ip: 192.168.218.53
+    - ip: 192.168.10.66
     ports:
     - name: elasticsearch
       port: 9200

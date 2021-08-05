@@ -35,5 +35,5 @@ metadata:
   namespace: logging
 type: Opaque
 data:
-  username: Y29sbGVjdG9y
-  password: cGFzc3dvcmQ=
+  username:
+  password:
